@@ -3,6 +3,8 @@ declare global {
     interface ProcessEnv {
       NODE_ENV: 'development' | 'production';
       PORT?: string;
+      CHROME_PATH?: string,
+      CHROME_HEADLESS?: 'true' | 'false'
     }
   }
 }

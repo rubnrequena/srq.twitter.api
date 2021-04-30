@@ -5,8 +5,8 @@ const articlePath: string = 'article > div > div > div > div.css-1dbjc4n.r-18u37
 
 export async function initTwitter() {
   browser = await puppeteer.launch({
-    executablePath: "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-    headless: true
+    executablePath: process.env.CHROME_PATH,
+    headless: process.env.CHROME_HEADLESS == 'true'
   })
 }
 export async function parse(twitter: string) {
