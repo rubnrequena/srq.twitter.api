@@ -21,7 +21,6 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
     let tweets = cacheTweets.get(twitter);
     const now = Date.now();
     if (tweets && (now - tweets.time) < parseInt(process.env.CACHE_TIME || "0")) {
-      console.log("cache time", twitter, (now - tweets.time), parseInt(process.env.CACHE_TIME || "0"));
       res.json(tweets.tweets);
     } else {
       tweets = await parse(twitter).catch(() => {
