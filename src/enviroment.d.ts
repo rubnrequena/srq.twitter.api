@@ -4,7 +4,8 @@ declare global {
       NODE_ENV: 'development' | 'production';
       PORT?: string;
       CHROME_PATH?: string,
-      CHROME_HEADLESS?: 'true' | 'false'
+      CHROME_HEADLESS?: 'true' | 'false',
+      CACHE_TIME: string
     }
   }
 }
