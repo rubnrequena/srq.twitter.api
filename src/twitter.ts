@@ -19,7 +19,7 @@ export async function parse(twitter: string) {
   });
   await page.goto(`https://twitter.com/${twitter}`, { waitUntil: 'domcontentloaded' });
 
-  await page.waitForSelector(articlePath);
+  await page.waitForSelector(articlePath, { timeout: 60000 })
   const articles = await page.$$eval(articlePath, (spans: Element[]) => {
     return spans.map(span => span.innerHTML)
   })
