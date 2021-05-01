@@ -6,7 +6,23 @@ const articlePath: string = 'article > div > div > div > div.css-1dbjc4n.r-18u37
 export async function initTwitter() {
   browser = await puppeteer.launch({
     executablePath: process.env.CHROME_PATH,
-    headless: process.env.CHROME_HEADLESS == 'true'
+    headless: process.env.CHROME_HEADLESS == 'true',
+    args: [
+      '--no-default-browser-check',
+      '--disable-infobars',
+      '--disable-web-security',
+      '--disable-site-isolation-trials',
+      '--no-experiments',
+      '--ignore-gpu-blacklist',
+      '--ignore-certificate-errors',
+      '--ignore-certificate-errors-spki-list',
+      '--disable-gpu',
+      '--disable-extensions',
+      '--disable-default-apps',
+      '--enable-features=NetworkService',
+      '--disable-setuid-sandbox',
+      '--no-sandbox',
+    ]
   })
 }
 export async function parse(twitter: string) {
