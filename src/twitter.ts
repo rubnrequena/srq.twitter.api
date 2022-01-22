@@ -1,7 +1,7 @@
 import puppeteer, { Browser } from 'puppeteer-core';
 
 let browser: Browser;
-const articlePath: string = 'article > div > div > div > div.css-1dbjc4n.r-18u37iz > div.css-1dbjc4n.r-1iusvr4.r-16y2uox.r-1777fci.r-kzbkwu > div:nth-child(2) > div:nth-child(1) > div > span';
+const articlePath: string = process.env.ARTICLE || 'article > .css-1dbjc4n';
 
 export async function initTwitter() {
   browser = await puppeteer.launch({
@@ -34,10 +34,12 @@ export async function parse(twitter: string) {
     else request.continue();
   });
   await page.goto(`https://twitter.com/${twitter}`, { waitUntil: 'domcontentloaded' });
-
-  await page.waitForSelector(articlePath, { timeout: 60000 })
+  console.log("articulo", process.env.ARTICLE, " ||||| ", articlePath)
+  await page.waitForSelector(articlePath, { timeout: 10000 }).catch(() => {
+    page.close()
+  })
   const articles = await page.$$eval(articlePath, (spans: Element[]) => {
-    return spans.map(span => span.innerHTML)
+    return spans.map(span => span.textContent || '')
   })
   await page.close();
 

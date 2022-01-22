@@ -20,17 +20,19 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
   if (typeof (twitter) == "string") {
     let tweets = cacheTweets.get(twitter);
     const now = Date.now();
+    console.log(tweets?.time, (now - (tweets?.time || 0)))
     if (tweets && (now - tweets.time) < parseInt(process.env.CACHE_TIME || "0")) {
-      res.json(tweets.tweets);
+      res.json(tweets);
     } else {
-      tweets = await parse(twitter).catch((error) => {
+      cacheTweets.set(twitter, { time: Date.now(), tweets: [] });
+      const tweetsResult = await parse(twitter).catch((error) => {
         console.error("ERROR:", error)
-        const cache = cacheTweets.get(twitter);
-        if (cache) return cache;
-        else return { time: Date.now(), tweets: [] }
+        res.json("");
+        return { time: Date.now(), tweets: [] }
       })
-      cacheTweets.set(twitter, tweets);
-      res.json(tweets.tweets);
+      cacheTweets.set(twitter, tweetsResult);
+      res.json(tweetsResult);
+      return tweets
     }
   }
 });
