@@ -20,7 +20,6 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
   if (typeof (twitter) == "string") {
     let tweets = cacheTweets.get(twitter);
     const now = Date.now();
-    console.log(tweets?.time, (now - (tweets?.time || 0)))
     if (tweets && (now - tweets.time) < parseInt(process.env.CACHE_TIME || "0")) {
       res.json(tweets);
     } else {
