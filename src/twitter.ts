@@ -26,7 +26,8 @@ export async function initTwitter() {
   })
 }
 export async function parse(twitter: string) {
-  console.log('Conectando con >> ', twitter)
+  const pages = await browser.pages()
+  console.log('Conectando con >> ', twitter, pages.length)
   const page = await browser.newPage();
   await page.setRequestInterception(true);
   page.on('request', (request) => {
@@ -34,7 +35,6 @@ export async function parse(twitter: string) {
     else request.continue();
   });
   await page.goto(`https://twitter.com/${twitter}`, { waitUntil: 'domcontentloaded' });
-  console.log("articulo", process.env.ARTICLE, " ||||| ", articlePath)
   await page.waitForSelector(articlePath, { timeout: 10000 }).catch(() => {
     page.close()
   })
@@ -48,6 +48,32 @@ export async function parse(twitter: string) {
   })
   const result: Twitter = { time: Date.now(), tweets: tweets };
   return result
+}
+
+export async function getLotto() {
+  const page = await browser.newPage()
+  await page.goto("https://lottoactivo.com", { waitUntil: "networkidle2" })
+  await page.click('#grupo_2');
+  await page.waitForTimeout(3000);
+  const elementos = await page.$$('.art-layout-cell.layout-item-2')
+  const results = [];
+  for (const el of elementos) {
+    const h5 = await el.$('h5');
+    const hora: string = await h5?.evaluate(node => node.innerText);
+    const img = await el.$('img');
+    const src: string = await img?.evaluate(img => img.src);
+    const patron = /\d+/;
+    const numeroGanador = patron.exec(src);
+    if (numeroGanador) {
+      results.push({
+        hora: hora.slice(0, 5),
+        ganador: numeroGanador[0]
+      })
+    }
+  }
+  page.close();
+  console.log(results);
+  return results;
 }
 
 export interface Twitter {

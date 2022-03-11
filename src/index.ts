@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express'
-import { initTwitter, parse, Twitter } from './twitter';
+import { getLotto, initTwitter, parse, Twitter } from './twitter';
 const app = express();
 
 
@@ -35,3 +35,8 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
     }
   }
 });
+
+app.get("/lottord", async (req, res) => {
+  let results = await getLotto();
+  res.json(results);
+})
