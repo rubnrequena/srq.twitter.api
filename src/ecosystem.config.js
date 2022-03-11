@@ -6,7 +6,8 @@ module.exports = {
       PORT: 3003,
       CHROME_PATH: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
       CHROME_HEADLESS: "true",
-      CACHE_TIME: 60000
+      CACHE_TIME: 60000,
+      ARTICLE: "article > .css-1dbjc4n"
     }
   }],
 };
