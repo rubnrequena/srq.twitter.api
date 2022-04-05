@@ -1,9 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express'
-import { getLotto, initTwitter, parse, Twitter } from './twitter';
+import { getLotto as getLotto, initTwitter, parse, Twitter } from './twitter';
 const app = express();
-
-
 dotenv.config();
 
 initTwitter().then(() => {
@@ -36,7 +34,33 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
   }
 });
 
+let cacherd: any;
+let cacherdtime: number;
 app.get("/lottord", async (req, res) => {
-  let results = await getLotto();
-  res.json(results);
+  const now = new Date().getTime();
+  console.log("time", now - cacherdtime)
+  if (now - cacherdtime < 60000) {
+    console.log('GET /lottord cache')
+    res.json(cacherd);
+  } else {
+    console.log('GET /lottord')
+    cacherdtime = now;
+    getLotto(true).then(results => {
+      cacherd = results;
+      res.json(results);
+    }).catch(e => {
+      cacherdtime = 0;
+      console.log('ERROR /lottord')
+      res.json(cacherd);
+    })
+  }
+})
+
+app.get("/lotto", async (req, res) => {
+  getLotto().then(results => {
+    res.json(results);
+  }).catch(e => {
+    console.log('ERROR /lottord')
+    res.json(cacherd);
+  })
 })

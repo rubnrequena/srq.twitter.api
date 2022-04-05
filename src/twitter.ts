@@ -1,5 +1,8 @@
 import puppeteer, { Browser } from 'puppeteer-core';
+import dotenv from 'dotenv';
+dotenv.config();
 
+const { DEBUG = "false" } = process.env;
 let browser: Browser;
 const articlePath: string = process.env.ARTICLE || 'article > .css-1dbjc4n';
 
@@ -50,23 +53,27 @@ export async function parse(twitter: string) {
   return result
 }
 
-export async function getLotto() {
+export async function getLotto(rd = false) {
+  const time = new Date().getTime();
   const page = await browser.newPage()
   await page.goto("https://lottoactivo.com", { waitUntil: "networkidle2" })
-  await page.click('#grupo_2');
+  if (rd) await page.click('#grupo_2');
   await page.waitForTimeout(3000);
   const elementos = await page.$$('.art-layout-cell.layout-item-2')
   const results = [];
   for (const el of elementos) {
     const h5 = await el.$('h5');
     const hora: string = await h5?.evaluate(node => node.innerText);
+    const horaCorta: string = hora.slice(0, 5);
+    if (rd && horaCorta.split(":").pop() == "00") continue;
+    if (!rd && horaCorta.split(":").pop() == "30") continue;
     const img = await el.$('img');
     const src: string = await img?.evaluate(img => img.src);
     const patron = /\d+/;
     const numeroGanador = patron.exec(src);
     if (numeroGanador) {
       results.push({
-        hora: hora.slice(0, 5),
+        hora: horaCorta,
         ganador: numeroGanador[0]
       })
     }
