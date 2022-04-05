@@ -72,8 +72,14 @@ export async function getLotto() {
     }
   }
   page.close();
-  console.log(results);
+  log(`${new Date().getTime() - time}ms`, 'RD:', rd, 'results:', JSON.stringify(results.pop()))
   return results;
+}
+
+function log(...params: any[]) {
+  if (DEBUG === 'true') {
+    console.log(params)
+  }
 }
 
 export interface Twitter {
