@@ -34,26 +34,13 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
   }
 });
 
-let cacherd: any;
-let cacherdtime: number;
 app.get("/lottord", async (req, res) => {
-  const now = new Date().getTime();
-  console.log("time", now - cacherdtime)
-  if (now - cacherdtime < 60000) {
-    console.log('GET /lottord cache')
-    res.json(cacherd);
-  } else {
-    console.log('GET /lottord')
-    cacherdtime = now;
-    getLotto(true).then(results => {
-      cacherd = results;
-      res.json(results);
-    }).catch(e => {
-      cacherdtime = 0;
-      console.log('ERROR /lottord')
-      res.json(cacherd);
-    })
-  }
+  getLotto(true).then(results => {
+    res.json(results);
+  }).catch(e => {
+    console.log('ERROR /lottord')
+    res.json("");
+  })
 })
 
 app.get("/lotto", async (req, res) => {
@@ -61,6 +48,6 @@ app.get("/lotto", async (req, res) => {
     res.json(results);
   }).catch(e => {
     console.log('ERROR /lottord')
-    res.json(cacherd);
+    res.json("");
   })
 })
