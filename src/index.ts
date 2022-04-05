@@ -35,19 +35,19 @@ app.get("/twitter/tweets/:twitter", async (req, res) => {
 });
 
 app.get("/lottord", async (req, res) => {
-  getLotto(true).then(results => {
+  getLotto(true).then((results: any) => {
     res.json(results);
-  }).catch(e => {
+  }).catch((e: Error) => {
     console.log('ERROR /lottord')
-    res.json("");
+    res.json();
   })
 })
 
 app.get("/lotto", async (req, res) => {
-  getLotto().then(results => {
+  getLotto().then((results: any) => {
     res.json(results);
-  }).catch(e => {
-    console.log('ERROR /lottord')
-    res.json("");
+  }).catch((e: Error) => {
+    console.log('ERROR /lotto')
+    res.json();
   })
 })
