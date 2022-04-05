@@ -56,7 +56,11 @@ export async function parse(twitter: string) {
 export async function getLotto(rd = false) {
   const time = new Date().getTime();
   const page = await browser.newPage()
-  await page.goto("https://lottoactivo.com", { waitUntil: "networkidle2" })
+  await page.goto("https://lottoactivo.com", { waitUntil: "networkidle2", timeout: 60000 }).catch((e) => {
+    console.error(e)
+    Promise.resolve(null);
+    page.close();
+  })
   if (rd) await page.click('#grupo_2');
   await page.waitForTimeout(3000);
   const elementos = await page.$$('.art-layout-cell.layout-item-2')
