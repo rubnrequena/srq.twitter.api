@@ -79,7 +79,7 @@ export async function getLotto(rd = false) {
     }
   }
   page.close();
-  log(`${new Date().getTime() - time}ms`, 'RD:', rd, 'results:', JSON.stringify(results.pop()))
+  log(`${new Date().getTime() - time}ms`, 'RD:', rd, 'results:', JSON.stringify(results[results.length - 1]))
   return results;
 }
 
