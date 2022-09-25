@@ -1,102 +1,98 @@
-import puppeteer, { Browser } from 'puppeteer-core';
-import dotenv from 'dotenv';
+import puppeteer, { Browser } from "puppeteer";
+import dotenv from "dotenv";
 dotenv.config();
 
 const { DEBUG = "false" } = process.env;
 let browser: Browser;
-const articlePath: string = process.env.ARTICLE || 'article > .css-1dbjc4n';
+const articlePath: string = process.env.ARTICLE || "article > .css-1dbjc4n";
 
 export async function initTwitter() {
   browser = await puppeteer.launch({
-    executablePath: process.env.CHROME_PATH,
-    headless: process.env.CHROME_HEADLESS == 'true',
-    args: [
-      '--no-default-browser-check',
-      '--disable-infobars',
-      '--disable-web-security',
-      '--disable-site-isolation-trials',
-      '--no-experiments',
-      '--ignore-gpu-blacklist',
-      '--ignore-certificate-errors',
-      '--ignore-certificate-errors-spki-list',
-      '--disable-gpu',
-      '--disable-extensions',
-      '--disable-default-apps',
-      '--enable-features=NetworkService',
-      '--disable-setuid-sandbox',
-      '--no-sandbox',
-    ]
-  })
+    headless: process.env.CHROME_HEADLESS == "true",
+  });
 }
 export async function parse(twitter: string) {
-  const pages = await browser.pages()
-  console.log('Conectando con >> ', twitter, pages.length)
+  const pages = await browser.pages();
+  console.log("Conectando con >> ", twitter, pages.length);
   const page = await browser.newPage();
   await page.setRequestInterception(true);
-  page.on('request', (request) => {
-    if (request.resourceType() === 'image') request.abort();
+  page.on("request", (request) => {
+    if (request.resourceType() === "image") request.abort();
     else request.continue();
   });
-  await page.goto(`https://twitter.com/${twitter}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`https://twitter.com/${twitter}`, {
+    waitUntil: "domcontentloaded",
+  });
   await page.waitForSelector(articlePath, { timeout: 10000 }).catch(() => {
-    page.close()
-  })
+    page.close();
+  });
   const articles = await page.$$eval(articlePath, (spans: Element[]) => {
-    return spans.map(span => span.textContent || '')
-  })
+    return spans.map((span) => span.textContent || "");
+  });
   await page.close();
 
-  const tweets: Tweet[] = articles.map(article => {
-    return { full_text: article.replace(/\n/gi, " ") }
-  })
+  const tweets: Tweet[] = articles.map((article) => {
+    return { full_text: article.replace(/\n/gi, " ") };
+  });
   const result: Twitter = { time: Date.now(), tweets: tweets };
-  return result
+  return result;
 }
 
 export async function getLotto(rd = false) {
   const time = new Date().getTime();
-  const page = await browser.newPage()
-  await page.goto("https://lottoactivo.com", { waitUntil: "networkidle2", timeout: 60000 }).catch((e) => {
-    console.error(e)
-    Promise.resolve(null);
-    page.close();
-  })
-  if (rd) await page.click('#grupo_2');
+  const page = await browser.newPage();
+  await page
+    .goto("https://lottoactivo.com", {
+      waitUntil: "networkidle2",
+      timeout: 60000,
+    })
+    .catch((e) => {
+      console.error(e);
+      Promise.resolve(null);
+      page.close();
+    });
+  if (rd) await page.click("#grupo_2");
   await page.waitForTimeout(3000);
-  const elementos = await page.$$('.art-layout-cell.layout-item-2')
+  const elementos = await page.$$(".art-layout-cell.layout-item-2");
   const results = [];
   for (const el of elementos) {
-    const h5 = await el.$('h5');
-    const hora: string = await h5?.evaluate(node => node.innerText);
+    const h5 = await el.$("h5");
+    const hora: string = (await h5?.evaluate((node) => node.innerText)) || "";
     const horaCorta: string = hora.slice(0, 5);
     if (rd && horaCorta.split(":").pop() == "00") continue;
     if (!rd && horaCorta.split(":").pop() == "30") continue;
-    const img = await el.$('img');
-    const src: string = await img?.evaluate(img => img.src);
+    const img = await el.$("img");
+    const src: string = (await img?.evaluate((img) => img.src)) || "";
     const patron = /\d+/;
     const numeroGanador = patron.exec(src);
     if (numeroGanador) {
       results.push({
         hora: horaCorta,
-        ganador: numeroGanador[0]
-      })
+        ganador: numeroGanador[0],
+      });
     }
   }
   page.close();
-  log(`${new Date().getTime() - time}ms`, 'RD:', rd, 'results:', JSON.stringify(results[results.length - 1]))
+  log(
+    `${new Date().getTime() - time}ms`,
+    "RD:",
+    rd,
+    "results:",
+    JSON.stringify(results[results.length - 1])
+  );
   return results;
 }
 
 function log(...params: any[]) {
-  if (DEBUG === 'true') {
-    console.log(params)
+  if (DEBUG === "true") {
+    console.log(params);
   }
 }
 
 export interface Twitter {
-  time: number,
-  tweets: Tweet[]
+  time: number;
+  tweets: Tweet[];
 }
 export interface Tweet {
-  full_text: string
+  full_text: string;
 }
