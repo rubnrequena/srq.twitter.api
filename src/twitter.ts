@@ -4,12 +4,17 @@ dotenv.config();
 
 const { DEBUG = "false" } = process.env;
 let browser: Browser;
-const articlePath: string = process.env.ARTICLE || "article > .css-1dbjc4n";
+const articlePath: string =
+  process.env.ARTICLE || "article > [data-testid=tweetText]";
 
 export async function initTwitter() {
   browser = await puppeteer.launch({
     headless: process.env.CHROME_HEADLESS == "true",
-    args: ["--no-sandbox"],
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
+    args: ["--no-sandbox", `--window-size=1920,1080`],
   });
 }
 export async function parse(twitter: string) {
@@ -24,6 +29,7 @@ export async function parse(twitter: string) {
   await page.goto(`https://twitter.com/${twitter}`, {
     waitUntil: "domcontentloaded",
   });
+  console.log("articlePath", articlePath);
   await page.waitForSelector(articlePath, { timeout: 10000 }).catch(() => {
     page.close();
   });
