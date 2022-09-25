@@ -9,6 +9,7 @@ const articlePath: string = process.env.ARTICLE || "article > .css-1dbjc4n";
 export async function initTwitter() {
   browser = await puppeteer.launch({
     headless: process.env.CHROME_HEADLESS == "true",
+    args: ["--no-sandbox"],
   });
 }
 export async function parse(twitter: string) {
