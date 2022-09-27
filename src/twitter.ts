@@ -29,7 +29,6 @@ export async function parse(twitter: string) {
   await page.goto(`https://twitter.com/${twitter}`, {
     waitUntil: "domcontentloaded",
   });
-  console.log("articlePath", articlePath);
   await page.waitForSelector(articlePath, { timeout: 10000 }).catch(() => {
     page.close();
   });
