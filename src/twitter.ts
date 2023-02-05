@@ -14,6 +14,7 @@ export async function initTwitter() {
       width: 1920,
       height: 1080,
     },
+    args: ["--no-sandbox", `--window-size=1920,1080`],
   });
 }
 export async function parse(twitter: string) {
